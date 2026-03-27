@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import csv
+import hashlib
 import re
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 ADVERSARIAL_PATTERNS = [
@@ -52,3 +55,38 @@ def build_safe_fallback(decision: SafetyDecision) -> dict[str, Any]:
         },
         "meta": {"status": "blocked_by_safety"},
     }
+
+
+def log_safety_decision(
+    *,
+    log_path: Path,
+    timestamp: str,
+    question: str,
+    decision: SafetyDecision,
+) -> None:
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    if not log_path.exists():
+        with log_path.open("w", encoding="utf-8", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(
+                [
+                    "timestamp",
+                    "question_hash",
+                    "blocked",
+                    "risk_score",
+                    "reason",
+                ]
+            )
+
+    question_hash = hashlib.sha256(question.encode("utf-8")).hexdigest()
+    with log_path.open("a", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(
+            [
+                timestamp,
+                question_hash,
+                str(decision.is_blocked).lower(),
+                f"{decision.risk_score:.2f}",
+                decision.reason,
+            ]
+        )

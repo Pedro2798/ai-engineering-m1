@@ -70,6 +70,12 @@ Esta tecnica mejora consistencia estructural en respuestas downstream.
 
 `src/safety.py` aplica una heuristica de riesgo adversarial (patrones tipo *ignore previous instructions*).  
 Si el riesgo supera el umbral, se bloquea la consulta y se devuelve fallback JSON seguro.
+Ademas, cada evaluacion de seguridad se registra en `metrics/safety_decisions.csv` con:
+- `timestamp`
+- `question_hash` (SHA-256 de la consulta)
+- `blocked`
+- `risk_score`
+- `reason`
 
 ## Tests
 

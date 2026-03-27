@@ -11,11 +11,12 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 from src.core import UsageMetrics, append_metrics, estimate_cost_usd, parse_json_output, utc_timestamp, validate_contract
-from src.safety import SafetyDecision, assess_prompt_risk, build_safe_fallback
+from src.safety import SafetyDecision, assess_prompt_risk, build_safe_fallback, log_safety_decision
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 PROMPT_PATH = ROOT_DIR / "prompts" / "main_prompt.md"
 METRICS_PATH = ROOT_DIR / "metrics" / "metrics.csv"
+SAFETY_LOG_PATH = ROOT_DIR / "metrics" / "safety_decisions.csv"
 
 
 def load_prompt_template(path: Path) -> str:
@@ -51,7 +52,14 @@ def call_openai(
 
 def run(question: str, model_name: str, mock_mode: bool = False) -> dict[str, Any]:
     start = time.perf_counter()
+    request_timestamp = utc_timestamp()
     decision: SafetyDecision = assess_prompt_risk(question)
+    log_safety_decision(
+        log_path=SAFETY_LOG_PATH,
+        timestamp=request_timestamp,
+        question=question,
+        decision=decision,
+    )
 
     if decision.is_blocked:
         payload = build_safe_fallback(decision)
@@ -108,7 +116,7 @@ def run(question: str, model_name: str, mock_mode: bool = False) -> dict[str, An
             total_tokens=total_tokens,
             latency_ms=latency_ms,
             estimated_cost_usd=estimated_cost_usd,
-            timestamp=utc_timestamp(),
+            timestamp=request_timestamp,
         ),
     )
     return payload

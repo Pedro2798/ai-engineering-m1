@@ -15,6 +15,7 @@ El sistema se implementa como una utilidad CLI en Python (`src/run_query.py`) co
 3. **Seguridad** (`src/safety.py`)  
    - Deteccion heuristica de prompts adversariales.  
    - Fallback seguro sin romper el contrato JSON.
+   - Logging persistente de decisiones en `metrics/safety_decisions.csv`.
 
 ## 2) Tecnica de prompting usada y por que
 
@@ -48,6 +49,7 @@ Ejemplo de decision adversarial:
 - `blocked=true`
 - `risk_score=0.7`
 - `reason=\"Prompt potencialmente adversarial detectado.\"`
+- decision registrada en `metrics/safety_decisions.csv` con hash de pregunta.
 
 ## 5) Trade-offs y desafios
 

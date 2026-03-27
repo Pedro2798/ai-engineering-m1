@@ -1,0 +1,2 @@
+timestamp,question_hash,blocked,risk_score,reason
+2026-03-27T14:17:09.007503+00:00,14cb2bdacd0b2074ff9eb119f6f26b84290049b3dc9b9897c2a53cb5cf024fe9,true,0.70,Prompt potencialmente adversarial detectado.
